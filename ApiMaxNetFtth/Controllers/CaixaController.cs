@@ -18,7 +18,7 @@ namespace ApiMaxNetFtth.Controllers
         }
 
         [HttpPost("caixa")]
-        public ActionResult Inserir([FromBody]CaixaModel modelo)
+        public ActionResult Inserir([FromBody] CaixaModel modelo)
         {
             if (ModelState.IsValid)
             {
@@ -38,6 +38,31 @@ namespace ApiMaxNetFtth.Controllers
             }
             return StatusCode(415);
         }
+
+        // meotodo GET para buscar todos os funcionarios ou buscar por identificador
+        [HttpGet("caixa")]
+        public IActionResult ListarTodos([FromQuery] string? nome)
+        {
+            return StatusCode(200, _caixa.ListarTodos(nome));
+        }
         
+        // metodo para deletar dados
+        [HttpDelete("caixa/{id}")]
+        public IActionResult Excluir([FromRoute] int id)
+        {
+            _caixa.Excluir(id);
+            // retornando sucesso
+            return StatusCode(200);
+        }
+
+        // metodo para obter um cliente
+        [HttpGet("caixa/{id}")]
+        public IActionResult BuscaEspecifica([FromRoute] int id)
+        {
+            // retornando sucesso
+            return StatusCode(200, _caixa.BuscarEspecifico(id));
+        }
+
+
     }
 }

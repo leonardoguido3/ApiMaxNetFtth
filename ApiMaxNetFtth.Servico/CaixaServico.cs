@@ -20,15 +20,23 @@ namespace ApiMaxNetFtth.Servico
 
         public void Inserir(CaixaModel modelo)
         {
-            try
-            {
-                _repositorio.AbrirConexao();
-                _repositorio.Inserir(modelo);
-            }
-            finally
-            {
-                _repositorio.FecharConexao();
-            }
+            _repositorio.Inserir(modelo);
         }
+        
+        public List<CaixaModel> ListarTodos (string? nome)
+        {
+            return _repositorio.ListarTodos(nome);
+        }
+        public bool Excluir(int id)
+        {
+            _repositorio.Excluir(id);
+            return true;
+
+        }
+        public CaixaModel BuscarEspecifico(int id)
+        {
+           return _repositorio.BuscarEspecifico(id);
+        }
+
     }
 }

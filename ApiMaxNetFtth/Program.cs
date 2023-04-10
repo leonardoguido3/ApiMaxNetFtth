@@ -8,6 +8,13 @@ namespace ApiMaxNetFtth
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
+
+            builder.Services.AddCors(policyBuilder =>
+                policyBuilder.AddDefaultPolicy(policy =>
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
+            );
+
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -30,7 +37,7 @@ namespace ApiMaxNetFtth
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseCors();
 
             app.MapControllers();
 

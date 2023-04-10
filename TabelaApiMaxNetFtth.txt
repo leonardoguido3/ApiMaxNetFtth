@@ -1,0 +1,9 @@
+CREATE TABLE Caixa (
+   Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+   Nome VARCHAR(MAX) NOT NULL,
+   Referencia VARCHAR(MAX) NOT NULL,
+   Rua VARCHAR(15O) NOT NULL,
+   Bairro VARCHAR(50) NOT NULL,
+   Cidade VARCHAR(50) NOT NULL,
+   IdentificadorCliente INT NULL
+)
