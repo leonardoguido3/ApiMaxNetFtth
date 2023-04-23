@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiMaxNetFtth.Domain\ApiMaxNetFtth.Domain.csproj" />
+    <ProjectReference Include="..\ApiMaxNetFtth.Filtro\ApiMaxNetFtth.Filtro.csproj" />
     <ProjectReference Include="..\ApiMaxNetFtth.Repositorio\ApiMaxNetFtth.Repositorio.csproj" />
   </ItemGroup>
 

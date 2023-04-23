@@ -1,4 +1,5 @@
 ﻿using ApiMaxNetFtth.Domain.Model;
+using ApiMaxNetFtth.Filtro;
 using ApiMaxNetFtth.Repositorio;
 using System;
 using System.Collections.Generic;
@@ -20,22 +21,54 @@ namespace ApiMaxNetFtth.Servico
 
         public void Inserir(CaixaModel modelo)
         {
-            _repositorio.Inserir(modelo);
+            try
+            {
+                _repositorio.Inserir(modelo);
+            }
+            catch (ValidacaoException error)
+            {
+                // Tratativa de erro aqui
+                Console.WriteLine($"Ocorreu um erro ao tentar inserir a caixa {modelo.Nome}: {error.Message}");
+            }
         }
-        
-        public List<CaixaModel> ListarTodos (string? nome)
+
+        public List<CaixaModel> ListarTodos(string? nome)
         {
-            return _repositorio.ListarTodos(nome);
+            try
+            {
+                return _repositorio.ListarTodos(nome);
+            }
+            catch (ValidacaoException)
+            {
+                // Tratativa de erro aqui
+                return new List<CaixaModel>();
+            }
+
         }
         public bool Excluir(int id)
         {
-            _repositorio.Excluir(id);
-            return true;
+            try
+            {
+                _repositorio.Excluir(id);
+                return true;
+            }
+            catch (ValidacaoException)
+            {
+                return false;
+            }
 
         }
         public CaixaModel BuscarEspecifico(int id)
         {
-           return _repositorio.BuscarEspecifico(id);
+            try
+            {
+                return _repositorio.BuscarEspecifico(id);
+            }
+            catch (ValidacaoException)
+            {
+                return new CaixaModel();
+            }
+            
         }
 
     }

@@ -1,13 +1,8 @@
 ﻿using ApiMaxNetFtth.Domain.Model;
 using ApiMaxNetFtth.Repositorio.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Dapper;
+using ApiMaxNetFtth.Filtro;
 
 namespace ApiMaxNetFtth.Repositorio
 {
@@ -24,19 +19,13 @@ namespace ApiMaxNetFtth.Repositorio
                 AbrirConexao();
 
                 string commandSql = @"INSERT INTO Caixa 
-                                               (Nome, Referencia, Rua, Bairro, Cidade)
+                                                (Nome, Referencia, Rua, Bairro, Cidade)
                                            VALUES
-                                               (@nome, @referencia, @rua, @bairro, @cidade);";
+                                                (@nome, @referencia, @rua, @bairro, @cidade);";
 
-                using (var cmd = new SqlCommand(commandSql, _conn))
-                {
-                    cmd.Parameters.AddWithValue("@nome", modelo.Nome);
-                    cmd.Parameters.AddWithValue("@referencia", modelo.Referencia);
-                    cmd.Parameters.AddWithValue("@rua", modelo.Rua);
-                    cmd.Parameters.AddWithValue("@bairro", modelo.Bairro);
-                    cmd.Parameters.AddWithValue("@cidade", modelo.Cidade);
-                    cmd.ExecuteNonQuery();
-                }
+                
+                var rowsAffected = _conn.Execute(commandSql, modelo);
+
             }
             finally
             {
@@ -48,10 +37,8 @@ namespace ApiMaxNetFtth.Repositorio
         {
             try
             {
-                var caixas = new List<CaixaModel>();
-                
                 AbrirConexao();
-                
+
                 string commandSql = @"SELECT 
                                            Id, Nome, Referencia, Rua, Bairro, Cidade
                                         FROM 
@@ -60,34 +47,14 @@ namespace ApiMaxNetFtth.Repositorio
                 if (!string.IsNullOrWhiteSpace(nome))
                     commandSql += " WHERE Nome LIKE @nome";
 
+                var caixas = _conn.Query<CaixaModel>(commandSql, new { nome });
 
-                using (var cmd = new SqlCommand(commandSql, _conn))
-                {
-                    if (!string.IsNullOrWhiteSpace(nome))
-                        cmd.Parameters.AddWithValue("@nome", "%" + nome + "%");
-
-                    using (var rdr = cmd.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                        {
-                            var caixa = new CaixaModel();
-                            caixa.Id = Convert.ToInt32(rdr["Id"]);
-                            caixa.Nome = Convert.ToString(rdr["Nome"]);
-                            caixa.Referencia = Convert.ToString(rdr["Referencia"]);
-                            caixa.Rua = Convert.ToString(rdr["Rua"]);
-                            caixa.Bairro = Convert.ToString(rdr["Bairro"]);
-                            caixa.Cidade = Convert.ToString(rdr["Cidade"]);
-
-                            caixas.Add(caixa);
-                        }
-                        return caixas;
-                    }
-                }
+                return caixas.ToList();
             }
             finally
             {
                 FecharConexao();
-            }           
+            }
         }
 
         // função para deletar um cliente do banco de dados
@@ -98,23 +65,18 @@ namespace ApiMaxNetFtth.Repositorio
                 AbrirConexao();
 
                 string commandSql = @"DELETE FROM Caixa 
-                                       WHERE 
-                                           Id = @id;";
+                                       WHERE Id = @id";
 
-                using (var cmd = new SqlCommand(commandSql, _conn))
-                {
-                    cmd.Parameters.AddWithValue("@id", id);
+                var linhasAfetadas = _conn.Execute(commandSql, new { id });
 
-                    var linhas = cmd.ExecuteNonQuery();
-                    if ( linhas == 0)
-                        throw new ValidationException($"Nenhum registro afetado para o Id {id}");
-                }
+                if (linhasAfetadas == 0)
+                    throw new ValidacaoException($"Nenhum registro afetado para o Id {id}");
             }
             finally
             {
                 FecharConexao();
             }
-            
+
         }
 
         // função para buscar cliente específico
@@ -122,10 +84,8 @@ namespace ApiMaxNetFtth.Repositorio
         {
             try
             {
-                var caixa = new CaixaModel();
-
                 AbrirConexao();
-                
+
                 string commandSql = @"SELECT 
                                            Id, Nome, Referencia, Rua, Bairro, Cidade 
                                         FROM
@@ -133,28 +93,9 @@ namespace ApiMaxNetFtth.Repositorio
                                        WHERE 
                                            Id = @id";
 
-                using (var cmd = new SqlCommand(commandSql, _conn))
-                {
-                    cmd.Parameters.AddWithValue("@id", id);
+                var caixa = _conn.QueryFirstOrDefault<CaixaModel>(commandSql, new { id });
 
-                    using (var rdr = cmd.ExecuteReader())
-                    {
-                        if (rdr.Read())
-                        {
-                            caixa.Id = Convert.ToInt32(rdr["Id"]);
-                            caixa.Nome = Convert.ToString(rdr["Nome"]);
-                            caixa.Referencia = Convert.ToString(rdr["Referencia"]);
-                            caixa.Rua = Convert.ToString(rdr["Rua"]);
-                            caixa.Bairro = Convert.ToString(rdr["Bairro"]);
-                            caixa.Cidade = Convert.ToString(rdr["Cidade"]);
-                            return caixa;
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                }
+                return caixa;
             }
             finally
             {
